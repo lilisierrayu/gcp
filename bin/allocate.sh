@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# (run on your local laptop)
+
+TPU_NAME=$1 # !!! change to another name you like
+ZONE=europe-west4-a  # a location where we have available TPU quota
+ACCELERATOR_TYPE=$2
+STARTUP_SCRIPT=./tpu_start_cm3.sh  # !!! change to your startup script path
+
+echo ${TPU_NAME}
+
+# RUNTIME_VERSION=tpu-vm-pt-1.11  # this is the runtime we use for PyTorch XLA (it contains PyTorch 1.11)
+RUNTIME_VERSION=tpu-vm-pt-1.12  # the XLA FSDP interface is supported in PyTorch/XLA
+
+
+# create a TPU VM (adding `--reserved` to create reserved TPUs)
+gcloud alpha compute tpus tpu-vm create ${TPU_NAME} \
+  --zone ${ZONE} \
+  --accelerator-type ${ACCELERATOR_TYPE} \
+  --version ${RUNTIME_VERSION} \
+  --metadata-from-file startup-script=${STARTUP_SCRIPT} \
+  --labels project_name=my_project_name,experiment_name=my_experiment_name \
+  --reserved
+
+
+
+PD_NAME=cm3
+PD_MOUNT_POINT=/checkpoint2
+PD_DEVICE=/dev/sdb  # the PD device (should be `/dev/sdb` for the 1st external persistent disk on a TPU VM)
+gcloud alpha compute tpus tpu-vm attach-disk ${TPU_NAME} --disk ${PD_NAME} --mode read-only --zone ${ZONE}
+echo "waiting for 10s before proceeding" && sleep 10  # wait a while for the PD to be mounted
+gcloud alpha compute tpus tpu-vm ssh ${TPU_NAME} --zone ${ZONE} \
+  --worker all --command "(((\$(df -h | grep $PD_MOUNT_POINT | wc -l) >= 1)) && echo PD $PD_NAME already mounted on \$(hostname)) || (sudo mkdir -p $PD_MOUNT_POINT && sudo mount -o discard,defaults $PD_DEVICE $PD_MOUNT_POINT && echo mounted PD on \$(hostname))"
+
+# MAY be add all those: 
+#  https://github.com/fairinternal/hcir/blob/main/gcp/bootstrap.sh
+
+# PD_NAME=ronghanghu-datasets-2
+# PD_DEVICE=/dev/sdc  # the PD device (should be `/dev/sdb` for the 1st external persistent disk on a TPU VM)
+# PD_MOUNT_POINT=/datasets02
+# gcloud alpha compute tpus tpu-vm attach-disk ${TPU_NAME} --disk ${PD_NAME} --mode read-only --zone ${ZONE}
+# echo "waiting for 10s before proceeding" && sleep 10  # wait a while for the PD to be mounted
+# gcloud alpha compute tpus tpu-vm ssh ${TPU_NAME} --zone ${ZONE} \
+#   --worker all --command "(((\$(df -h | grep $PD_MOUNT_POINT | wc -l) >= 1)) && echo PD $PD_NAME already mounted on \$(hostname)) || (sudo mkdir -p $PD_MOUNT_POINT && sudo mount -o discard,defaults $PD_DEVICE $PD_MOUNT_POINT && echo mounted PD on \$(hostname))"
+
+# PD_NAME=ronghanghu-datasets-3
+# PD_DEVICE=/dev/sdd  # the PD device (should be `/dev/sdc` for the 2nd external persistent disk on a TPU VM)
+# PD_MOUNT_POINT=/datasets03
+# gcloud alpha compute tpus tpu-vm attach-disk ${TPU_NAME} --disk ${PD_NAME} --mode read-only --zone ${ZONE}
+# echo "waiting for 10s before proceeding" && sleep 10  # wait a while for the PD to be mounted
+# gcloud alpha compute tpus tpu-vm ssh ${TPU_NAME} --zone ${ZONE} \
+#   --worker all --command "(((\$(df -h | grep $PD_MOUNT_POINT | wc -l) >= 1)) && echo PD $PD_NAME already mounted on \$(hostname)) || (sudo mkdir -p $PD_MOUNT_POINT && sudo mount -o discard,defaults $PD_DEVICE $PD_MOUNT_POINT && echo mounted PD on \$(hostname))"
