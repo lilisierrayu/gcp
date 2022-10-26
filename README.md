@@ -16,7 +16,9 @@ wget https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk
 
 ---
 ### Connect to an exisiting remote connector: 
-Available remote connectors can be found [here](https://console.cloud.google.com/compute/instances), for create new ones, please see [this instruction](https://github.com/fairinternal/fair_gcp_tpu_docs/blob/main/README.md#using-a-remote-coordinator-vm-to-guard-against-maintenance-events)
+Available remote connectors can be found [here](https://console.cloud.google.com/compute/instances), to create new ones, please follow [this instruction](https://github.com/fairinternal/fair_gcp_tpu_docs/blob/main/README.md#using-a-remote-coordinator-vm-to-guard-against-maintenance-events) . 
+Remote connector once setup should be there for good, this is your "devfair", and you can do data processing, code writing, launching training all in this remote connector. 
+
 
 #### Connect using your terminal
 ```bash
@@ -67,6 +69,8 @@ Allocate TPUs using (default accelorator_type is v3-128):
 `check_tpu_status {tpu_name}` or `tpuvm_list`
 
 #### Launch training
+For long-running jobs with PyTorch XLA or JAX, one common reason for the job to fail is [maintenance events](https://cloud.google.com/tpu/docs/maintenance-events), which are beyond the users' control. When maintenance events happen, the connection to the TPU VM would often fail, and the training process will be lost. It is recommended to launch training from remote connector.
+
 Training model training in the remote connector (better in a tmux session)
 ```bash
 # (run on your remote coordinator VM, preferably in a tmux session)
