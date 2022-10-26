@@ -15,7 +15,7 @@ wget https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk
 **If you are a member of FAIR, you can [request access](https://fburl.com/wiki/1vtzt0o3) to the FAIR GCP project (project ID `fair-infra3f4ebfe6`)** (please refer to FAIR [Cloud Compute Usage Policy](https://fb.workplace.com/groups/FAIRinternal/permalink/9502789883102875/) for resource approval), use your work email address in `gcloud init` above, and follow other details in [FAIR GCP login guide](https://fburl.com/wiki/7kswgk2a) (replace the Google Cloud SDK url in this guide with the latest one [here](https://cloud.google.com/sdk/docs/quickstart#installing_the_latest_version) as in the command above). You can set the default project ID via `gcloud config set project fair-infra3f4ebfe6`. You can also install the gcloud CLI and run it from other places in addition to your laptop, such as the FAIR cluster or the FAIR AWS cluster.
 
 ---
-### Connect to an exisiting remote connector via terminal: 
+### Connect to an exisiting remote connector: 
 Available remote connectors can be found [here](https://console.cloud.google.com/compute/instances), for create new ones, please see [this instruction](https://github.com/fairinternal/fair_gcp_tpu_docs/blob/main/README.md#using-a-remote-coordinator-vm-to-guard-against-maintenance-events)
 
 #### Connect using your terminal
@@ -35,7 +35,7 @@ ssh 34.147.116.54 -i ~/.ssh/google_compute_engine
 
 ### Setup the remote connector: 
 #### Connect to nfs: 
-The remote connector should already have `/checkpoint/` folder, if not, run the following scripts: 
+The remote connector should already have `/checkpoint/` folder, if not, run the following scripts to setup: 
 ```bash
 SHARED_FS=10.89.225.82:/mmf_megavlt
 MOUNT_POINT=/checkpoint
@@ -47,21 +47,24 @@ sudo mount $SHARED_FS $MOUNT_POINT
 sudo chmod go+rw $MOUNT_POINT
 ```
 
-#### Setup TPU scripts: 
+#### Run setup scripts
 ```bash
 bash /checkpoint/liliyu/workplace/gcp/setup_remote_coordinator.sh
 ```
-Once setup, 
+Once finish and setup, 
 1. you should connect to CM3 data folder as `/checkpoint2`
 2. azcopy ready to use
-3. TPU commands ready to use: `tpuvm_allocate`, `tpuvm_login`, `tpuvm_list`, ``tpuvm_delete`,  `check_tpu_status`
+3. TPU commands ready to use: `tpuvm_allocate`, `tpuvm_login`, `tpuvm_list`, `tpuvm_delete`, `check_tpu_status`
 
 
 
 ## Training models:
 #### Allocate the TPUs 
-Allocate TPUs using:
+Allocate TPUs using (default accelorator_type is v3-128):
 `tpuvm_allocate {tpu_name} {accelorator_type}`
+
+#### Check the TPUs are already there using: 
+`check_tpu_status {tpu_name}` or `tpuvm_list`
 
 #### Launch training
 Training model training in the remote connector (better in a tmux session)
@@ -100,10 +103,10 @@ done
 ```
 #### Release TPUs after training
 ```bash
-delete {tpu_name}
+tpuvm_delete {tpu_name}
 ```
 
-## Debugging Setting up TPUs:
+## Debugging and setting up TPUs:
 For more information about TPU usage, please refer to the detailed [tutorial](https://github.com/fairinternal/fair_gcp_tpu_docs/blob/main/README.md)
 
 Training error toubleshooting can be found in this [section](https://github.com/fairinternal/fair_gcp_tpu_docs/blob/main/README.md#troubleshooting)
