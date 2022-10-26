@@ -1,9 +1,9 @@
 sudo cp /usr/sbin/usermod /usr/bin/usermod
 mkdir /checkpoint/$USER
 mkdir /checkpoint/$USER/bin
+sudo chmod 777 /checkpoint/$USER
 
 HOME=/checkpoint/$USER
-export PATH=$PATH:$HOME/bin
 
 sudo cp  /checkpoint/liliyu/workplace/gcp/bin/* /checkpoint/$USER/bin/
 # sudo cp /checkpoint/liliyu/workplace/gcp/bin/* /usr/bin/
@@ -55,4 +55,5 @@ alias black120="black --line-length=120"  # use black from "pip install black==1
 
 export BLOB_AUTH="sv=2020-08-04&ss=bfqt&srt=sco&sp=rwdlacupitfx&se=2023-10-06T21:33:38Z&st=2022-05-09T13:33:38Z&spr=https&sig=lrvUOVNoS4p62JY3EV4XnNuJwq517ChOdFwitywQgeA%3D"
 export BLOB_PRE1="https://lrsstoragewest3.blob.core.windows.net"
+export PATH=$PATH:$HOME/bin
 

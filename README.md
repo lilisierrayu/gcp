@@ -43,11 +43,13 @@ ssh 34.147.116.54 -i ~/.ssh/google_compute_engine
 #### Connect to nfs: 
 The remote connector should already have `/checkpoint/` folder, if not, run the following scripts to setup: 
 ```bash
-SHARED_FS=10.89.225.82:/mmf_megavlt
-MOUNT_POINT=/checkpoint
-
 sudo apt-get -y update
 sudo apt-get -y install nfs-common
+```
+
+```bash
+SHARED_FS=10.89.225.82:/mmf_megavlt
+MOUNT_POINT=/checkpoint
 sudo mkdir -p $MOUNT_POINT
 sudo mount $SHARED_FS $MOUNT_POINT
 sudo chmod go+rw $MOUNT_POINT
@@ -55,7 +57,7 @@ sudo chmod go+rw $MOUNT_POINT
 
 #### Run setup scripts
 ```bash
-bash /checkpoint/liliyu/workplace/gcp/setup_remote_coordinator.sh
+source /checkpoint/liliyu/workplace/gcp/setup_remote_coordinator.sh {VM_NAME}
 ```
 Once finish and setup, 
 1. you should connect to CM3 data folder as `/checkpoint2`
