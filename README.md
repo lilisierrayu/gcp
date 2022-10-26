@@ -16,7 +16,9 @@ wget https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk
 
 ---
 ### Connect to an exisiting remote connector via terminal: 
-Using your terminal
+Available remote connectors can be found [here](https://console.cloud.google.com/compute/instances), for create new ones, please see [this instruction](https://github.com/fairinternal/fair_gcp_tpu_docs/blob/main/README.md#using-a-remote-coordinator-vm-to-guard-against-maintenance-events)
+
+#### Connect using your terminal
 ```bash
 VM_NAME=cm3-rc-0  # !!! change to the VM name you created
 ZONE=europe-west4-a
@@ -26,32 +28,43 @@ gcloud compute ssh ${VM_NAME} --zone ${ZONE}
 
 One can setup VSCode connection to the VMs via [remote SSH connection](https://code.visualstudio.com/docs/remote/ssh).
 
-First look up the *external* IP address of your compute engine VM [here](https://console.cloud.google.com/compute/instances) (e.g. `34.147.116.54` for cm3-rc-1) and then use your `~/.ssh/google_compute_engine` key to set up a connection.
+First look up the *external* IP address of your compute engine VM [here](https://console.cloud.google.com/compute/instances) (e.g. `34.147.116.54` for cm3-rc-0) and then use your `~/.ssh/google_compute_engine` key to set up a connection.
 ```bash
-ssh 35.204.72.42 -i ~/.ssh/google_compute_engine
+ssh 34.147.116.54 -i ~/.ssh/google_compute_engine
 ```
 
 ### Setup the remote connector: 
-Set up your work environment
-The remote connector should already have /checkpoint/ folder, if not, run the following scripts: 
+#### Connect to nfs: 
+The remote connector should already have `/checkpoint/` folder, if not, run the following scripts: 
 ```bash
+SHARED_FS=10.89.225.82:/mmf_megavlt
+MOUNT_POINT=/checkpoint
+
 sudo apt-get -y update
 sudo apt-get -y install nfs-common
 sudo mkdir -p $MOUNT_POINT
 sudo mount $SHARED_FS $MOUNT_POINT
 sudo chmod go+rw $MOUNT_POINT
 ```
-Then run this to setup :
+
+#### Setup TPU scripts: 
+```bash
 bash /checkpoint/liliyu/workplace/gcp/setup_remote_coordinator.sh
-Confirm that you have cm3 data setup 
-Confirm that you have util scrpts setup
+```
+Once setup, 
+1. you should connect to CM3 data folder as `/checkpoint2`
+2. azcopy ready to use
+3. TPU commands ready to use: `tpuvm_allocate`, `tpuvm_login`, `tpuvm_list`, ``tpuvm_delete`,  `check_tpu_status`
 
 
 
 ## Training models:
-Allocate the TPUs you need with 
+#### Allocate the TPUs 
+Allocate TPUs using:
 `tpuvm_allocate {tpu_name} {accelorator_type}`
-Training model in a robust way:
+
+#### Launch training
+Training model training in the remote connector (better in a tmux session)
 ```bash
 # (run on your remote coordinator VM, preferably in a tmux session)
 
@@ -83,8 +96,14 @@ while ! [ -f $FINAL_CKPT ]; do
     sudo rm -f /tmp/libtpu_lockfile
     mkdir -p /tmp/tpu_logs && sudo chmod a+w -R /tmp/tpu_logs
     "
-
 done
 ```
+#### Release TPUs after training
+```bash
+delete {tpu_name}
+```
 
+## Debugging Setting up TPUs:
+For more information about TPU usage, please refer to the detailed [tutorial](https://github.com/fairinternal/fair_gcp_tpu_docs/blob/main/README.md)
 
+Training error toubleshooting can be found in this [section](https://github.com/fairinternal/fair_gcp_tpu_docs/blob/main/README.md#troubleshooting)

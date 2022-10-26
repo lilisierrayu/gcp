@@ -1,9 +1,15 @@
-
 sudo cp /usr/sbin/usermod /usr/bin/usermod
 mkdir /checkpoint/$USER
-usermod -d /checkpoint/$USER $USER
+mkdir /checkpoint/$USER/bin
 
-sudo cp /checkpoint/liliyu/workplace/gcp/bin/* /usr/bin/
+HOME=/checkpoint/$USER
+export PATH=$PATH:$HOME/bin
+
+sudo cp  /checkpoint/liliyu/workplace/gcp/bin/* /checkpoint/$USER/bin/
+# sudo cp /checkpoint/liliyu/workplace/gcp/bin/* /usr/bin/
+sudo cp /checkpoint/liliyu/packages/azcopy_linux_amd64_10.16.1/azcopy /checkpoint/$USER/bin/
+
+
 # !!! this script mounts Ronghang's NFS directory (`10.89.225.82:/mmf_megavlt`) to `/checkpoint`.
 # !!! You should create your own NFS directory in https://console.cloud.google.com/filestore/instances
 # !!! and modify the startup script accordingly
@@ -26,12 +32,10 @@ done
 
 # Attache the persistent disk 
 VM_NAME=$1
-VM_NAME=test-tpu-8
 ZONE=europe-west4-a
 PD_NAME=cm3
 PD_MOUNT_POINT=/checkpoint2
-# gcloud compute instances attach-disk ${VM_NAME} --disk ${PD_NAME} --mode=read-only --zone ${ZONE}
-gcloud alpha compute tpus tpu-vm attach-disk ${VM_NAME} --disk ${PD_NAME} --mode=read-only  --zone ${ZONE}
+gcloud compute instances attach-disk ${VM_NAME} --disk ${PD_NAME} --mode=ro  --zone ${ZONE}
 
 # the new persistent disk should be to /dev/sdb (you can run `lsblk` to confirm it)
 PD_DEVICE=/dev/sdb
@@ -42,4 +46,13 @@ sudo mount -o discard,defaults $PD_DEVICE $PD_MOUNT_POINT
 sudo chmod a+rw $PD_MOUNT_POINT
 sudo chown -R $USER $PD_MOUNT_POINT
 
+
+# also, below are some aliases I like
+alias python='python3'
+alias setupssh='gcloud compute config-ssh --quiet'
+alias black120="black --line-length=120"  # use black from "pip install black==19.10b0"
+
+
+export BLOB_AUTH="sv=2020-08-04&ss=bfqt&srt=sco&sp=rwdlacupitfx&se=2023-10-06T21:33:38Z&st=2022-05-09T13:33:38Z&spr=https&sig=lrvUOVNoS4p62JY3EV4XnNuJwq517ChOdFwitywQgeA%3D"
+export BLOB_PRE1="https://lrsstoragewest3.blob.core.windows.net"
 
