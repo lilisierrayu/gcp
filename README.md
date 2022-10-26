@@ -1,3 +1,7 @@
+### preliminary:
+For CM3 project on TPUs, we use remote connector as working space, NFS for storing code/checkpoints, persistent disk (read-only) for traing/val/test data storage. 
+
+
 ## Using TPUs:
 
 ### Before starting: installing Google Cloud SDK and account
