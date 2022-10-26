@@ -1,5 +1,5 @@
 ### preliminary:
-For CM3 project on TPUs, we use remote connector as working space, NFS for storing code/checkpoints, persistent disk (read-only) for traing/val/test data storage. 
+For CM3 project on TPUs, we use remote connector as working space, NFS (mount as /checkpoint) for storing code/checkpoints, persistent disk (read-only) (mount as /checkpoint2) for storing trainng/val/test data. 
 
 
 ## Using TPUs:
