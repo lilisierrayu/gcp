@@ -4,8 +4,15 @@
 
 TPU_NAME=$1 # !!! change to another name you like
 ZONE=europe-west4-a  # a location where we have available TPU quota
-ACCELERATOR_TYPE=$2
-STARTUP_SCRIPT=./tpu_start_cm3.sh  # !!! change to your startup script path
+
+ACCELERATOR_TYPE=v3-128
+if [ $# -gt 1 ] 
+then
+    # TODO: print usage
+    ACCELERATOR_TYPE=$2
+fi
+
+STARTUP_SCRIPT=/checkpoint/liliyu/workplace/gcp/bin/cm3_tpu_start_script.sh  # !!! change to your startup script path
 
 echo ${TPU_NAME}
 

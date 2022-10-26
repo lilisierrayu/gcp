@@ -1,7 +1,6 @@
-# (run on your local laptop)
+#!/bin/bash
 
-TPU_NAME_LIST="mae-tpu-128 mae-tpu-128-2"  # !!! change to the list of TPU VMs you're using
-TPU_NAME_LIST="cm3-128-1 cm3-128-2"  # !!! change to the list of TPU VMs you're using
+TPU_NAME_LIST=$1 # !!! change to the list of TPU VMs you're using
 
 ZONE=europe-west4-a
 
@@ -10,7 +9,6 @@ PYTHON_PROCESS_NUM=1  # a busy node should have at a python process running
 echo "======================================================"
 echo "[status]    [reserved]    [tpu-name]"
 for TPU_NAME in $TPU_NAME_LIST; do
-    TPU_NAME=cm3-128-1
     description=$(gcloud alpha compute tpus tpu-vm describe ${TPU_NAME} --zone ${ZONE} 2>/dev/null)
     if [[ $(echo $description | grep "reserved: true" | wc -l) -eq 0 ]]; then
         RESERVED="ON-DEMAND"

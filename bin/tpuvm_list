@@ -1,5 +1,8 @@
+#!/bin/bash
+
 ZONE=europe-west4-a
 gcloud alpha compute tpus list --zone ${ZONE}
 
+echo ' '
 echo 'checking quota here'
 echo 'https://console.cloud.google.com/apis/api/tpu.googleapis.com/quotas?authuser=0&project=fair-infra3f4ebfe6'
